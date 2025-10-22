@@ -1,4 +1,4 @@
-package com.example.library.repository.entities;
+package com.example.library.db.entities;
 
 public class Loan {
 }

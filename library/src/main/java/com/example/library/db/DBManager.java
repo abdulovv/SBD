@@ -1,9 +1,11 @@
-package com.example.db;
+package com.example.library.db;
 
-import com.example.db.entities.Book;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.stereotype.Component;
+
 import java.sql.*;
 
+@Component
 public class DBManager {
     private final String ADMIN_URL = "jdbc:postgresql://localhost:5432/postgres";
 
@@ -40,6 +42,7 @@ public class DBManager {
         getConnection();
     }
 
+    //САША СДЕЛАЙ ЭТО
     private void createSchema(Connection connection) throws SQLException {
         String createUsersTable =
                        "CREATE TABLE users (id SERIAL PRIMARY KEY," +
@@ -93,52 +96,12 @@ public class DBManager {
         }
     }
 
-    private void getConnection() throws SQLException {
+    public void getConnection() throws SQLException {
         try {
             connection = DriverManager.getConnection(url, username, password);
         }catch (SQLException e){
             System.out.println("Connection Failed!");
             connection = null;
-        }
-    }
-
-    public void addBook() throws SQLException {
-        String query = "INSERT INTO books (author, title, in_stock) VALUES (?, ?, ?);";
-
-        Book book = new Book();
-        PreparedStatement statement = connection.prepareStatement(query);
-        connection.setAutoCommit(false);
-
-        statement.setString(1, book.getAuthor());
-        statement.setString(2, book.getTitle());
-        statement.setBoolean(3, book.getIn_stock());
-        statement.execute();
-        connection.commit();
-
-        System.out.println("Book added successfully!");
-    }
-
-    public Book getBookById(int id) throws SQLException {
-        String query = "SELECT id, author, title, in_stock FROM books WHERE id = ?";
-
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, id);
-
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    int bookId = rs.getInt("id");
-                    String author = rs.getString("author");
-                    String title = rs.getString("title");
-                    boolean inStock = rs.getBoolean("in_stock");
-
-                    return new Book(bookId, author, title, inStock);
-                } else {
-                    return null;
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error in getting book by ID: " + e.getMessage());
-            return  null;
         }
     }
 
