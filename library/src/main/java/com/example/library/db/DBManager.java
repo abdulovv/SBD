@@ -1,50 +1,36 @@
 package com.example.library.db;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import org.springframework.stereotype.Component;
-
 import java.sql.*;
 
-@Component
-public class DBManager {
-    private final String ADMIN_URL = Dotenv.load().get("ADMIN_URL");
+public final class DBManager {
+    private static final String ADMIN_URL = Dotenv.load().get("ADMIN_URL");
+    private static final String DB_URL = Dotenv.load().get("DB_URL");
+    private static final String USER = Dotenv.load().get("DB_USER");
+    private static final String PASSWORD = Dotenv.load().get("DB_PASSWORD");
 
-    private final String url;
-    private final String username;
-    private final String password;
-
-    private Connection connection;
-
-    public DBManager(){
-        Dotenv dotenv = Dotenv.load();
-        url = dotenv.get("DB_URL");
-        username = dotenv.get("DB_USERNAME");
-        password = dotenv.get("DB_PASSWORD");
-    }
-
-    public void createDBIfNotExist() throws SQLException {
+    public static void createDBIfNotExist() throws SQLException {
         boolean isExist = databaseExists("library");
 
         if (!isExist){
             System.out.println("Db 'library' doesn't exist.");
 
-            Connection connectionForAdminDB = DriverManager.getConnection(ADMIN_URL, username, password);
+            Connection connectionForAdminDB = DriverManager.getConnection(ADMIN_URL, USER, PASSWORD);
             Statement statement = connectionForAdminDB.createStatement();
             String query = "CREATE DATABASE library";
             statement.execute(query);
 
             System.out.println("Database 'library' was created!");
-            getConnection();
-            createSchema(connection);
+            createSchema(getConnection());
         }else {
             System.out.println("Database 'library' already exists!");
         }
 
-        getConnection();
+        closeConnection();
     }
 
     //САША СДЕЛАЙ ЭТО
-    private void createSchema(Connection connection) throws SQLException {
+    private static void createSchema(Connection connection) throws SQLException {
         String createUsersTable =
                        "CREATE TABLE users (id SERIAL PRIMARY KEY," +
                        "full_name VARCHAR(100) NOT NULL," +
@@ -86,8 +72,8 @@ public class DBManager {
     }
 
 
-    private boolean databaseExists(String dbName) throws SQLException {
-        Connection adminConn = DriverManager.getConnection(ADMIN_URL, username, password);
+    private static boolean databaseExists(String dbName) throws SQLException {
+        Connection adminConn = DriverManager.getConnection(ADMIN_URL, USER, PASSWORD);
 
         PreparedStatement stmt = adminConn.prepareStatement("SELECT 1 FROM pg_database WHERE datname = ?");
         stmt.setString(1, dbName);
@@ -97,17 +83,19 @@ public class DBManager {
         }
     }
 
-    public void getConnection() throws SQLException {
+    public static Connection getConnection() throws SQLException {
+        Connection connection;
         try {
-            connection = DriverManager.getConnection(url, username, password);
+            connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
         }catch (SQLException e){
             System.out.println("Connection Failed!");
             connection = null;
         }
+        return connection;
     }
 
-    public void closeConnection() throws SQLException {
-        connection.close();
+    public static void closeConnection() throws SQLException {
+        getConnection().close();
     }
 }
 
