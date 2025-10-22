@@ -7,7 +7,7 @@ import java.sql.*;
 
 @Component
 public class DBManager {
-    private final String ADMIN_URL = "jdbc:postgresql://localhost:5432/postgres";
+    private final String ADMIN_URL = Dotenv.load().get("ADMIN_URL");
 
     private final String url;
     private final String username;
@@ -28,12 +28,13 @@ public class DBManager {
         if (!isExist){
             System.out.println("Db 'library' doesn't exist.");
 
-            Connection connection = DriverManager.getConnection(ADMIN_URL, username, password);
-            Statement statement = connection.createStatement();
+            Connection connectionForAdminDB = DriverManager.getConnection(ADMIN_URL, username, password);
+            Statement statement = connectionForAdminDB.createStatement();
             String query = "CREATE DATABASE library";
             statement.execute(query);
 
             System.out.println("Database 'library' was created!");
+            getConnection();
             createSchema(connection);
         }else {
             System.out.println("Database 'library' already exists!");
