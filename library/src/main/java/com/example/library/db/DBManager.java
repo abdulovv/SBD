@@ -32,38 +32,79 @@ public final class DBManager {
     //САША СДЕЛАЙ ЭТО
     private static void createSchema(Connection connection) throws SQLException {
         String createUsersTable =
-                       "CREATE TABLE users (id SERIAL PRIMARY KEY," +
-                       "full_name VARCHAR(100) NOT NULL," +
-                       "registration_date DATE NOT NULL," +
-                       "login VARCHAR(50) UNIQUE NOT NULL," +
-                       "password VARCHAR(255) NOT NULL," +
-                       "is_admin BOOLEAN NOT NULL DEFAULT FALSE);";
+                "CREATE TABLE IF NOT EXISTS users (" +
+                        "user_id SERIAL PRIMARY KEY," +
+                        "first_name VARCHAR(100) NOT NULL," +
+                        "last_name VARCHAR(100) NOT NULL," +
+                        "phone VARCHAR(20)," +
+                        "login VARCHAR(50) UNIQUE NOT NULL," +
+                        "password VARCHAR(255) NOT NULL," +
+                        "is_admin BOOLEAN NOT NULL DEFAULT FALSE);";
 
-        String createBooksTable =
-                       "CREATE TABLE books (id SERIAL PRIMARY KEY," +
-                       "author VARCHAR(100) NOT NULL," +
-                       "title VARCHAR(200) NOT NULL," +
-                       "in_stock BOOLEAN NOT NULL DEFAULT TRUE);";
 
-        String createLoansTable =
-                "CREATE TABLE loan (id SERIAL PRIMARY KEY," +
-                "user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE," +
-                "book_id INTEGER NOT NULL REFERENCES books(id) ON DELETE CASCADE," +
-                "loan_date DATE NOT NULL," +
-                "return_date DATE);";
+        String createGenreTable =
+                "CREATE TABLE IF NOT EXISTS genre (" +
+                        "genre_id SERIAL PRIMARY KEY," +
+                        "genre_name VARCHAR(100) UNIQUE NOT NULL);";
+
+        String createAuthorTable =
+                "CREATE TABLE IF NOT EXISTS author (" +
+                        "author_id SERIAL PRIMARY KEY," +
+                        "first_name VARCHAR(100) NOT NULL," +
+                        "last_name VARCHAR(100) NOT NULL," +
+                        "country VARCHAR(100));";
+
+        //---------------------------------------------------------//
+
+        String createBookshelfTable =
+                "CREATE TABLE IF NOT EXISTS bookshelf (" +
+                        "bookshelf_id SERIAL PRIMARY KEY," +
+                        "name VARCHAR(100) NOT NULL," +
+                        "author_id INT," +
+                        "FOREIGN KEY (author_id) REFERENCES author(author_id));";
 
         String createLogsTable =
-                "CREATE TABLE logs (id SERIAL PRIMARY KEY," +
-                "user_id INTEGER REFERENCES users(id) ON DELETE SET NULL," +
-                "action VARCHAR(50) NOT NULL," +
-                "action_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
-                "details TEXT);";
+                "CREATE TABLE IF NOT EXISTS logs (" +
+                        "id SERIAL PRIMARY KEY," +
+                        "datetime TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+                        "description TEXT," +
+                        "user_id INT," +
+                        "FOREIGN KEY (user_id) REFERENCES users(user_id));";
+
+        //---------------------------------------------------------//
+
+        String createBookTable =
+                "CREATE TABLE IF NOT EXISTS book (" +
+                        "book_id SERIAL PRIMARY KEY," +
+                        "name VARCHAR(255) NOT NULL," +
+                        "year INT," +
+                        "author_id INT NOT NULL," +
+                        "genre_id INT NOT NULL," +
+                        "bookshelf_id INT," +
+                        "FOREIGN KEY (author_id) REFERENCES author(author_id)," +
+                        "FOREIGN KEY (genre_id) REFERENCES genre(genre_id)," +
+                        "FOREIGN KEY (bookshelf_id) REFERENCES bookshelf(bookshelf_id));";
+
+        //---------------------------------------------------------//
+
+        String createLoanTable =
+                "CREATE TABLE IF NOT EXISTS loan (" +
+                        "loan_id SERIAL PRIMARY KEY," +
+                        "book_id INT NOT NULL," +
+                        "user_id INT NOT NULL," +
+                        "loan_date DATE NOT NULL," +
+                        "return_date DATE," +
+                        "FOREIGN KEY (book_id) REFERENCES book(book_id)," +
+                        "FOREIGN KEY (user_id) REFERENCES users(user_id));";
 
         try(Statement statement = connection.createStatement()){
             statement.execute(createUsersTable);
-            statement.execute(createBooksTable);
-            statement.execute(createLoansTable);
+            statement.execute(createGenreTable);
+            statement.execute(createAuthorTable);
+            statement.execute(createBookshelfTable);
             statement.execute(createLogsTable);
+            statement.execute(createBookTable);
+            statement.execute(createLoanTable);
         }catch (SQLException e){
             System.out.println("Error in creating tables!");
         }
