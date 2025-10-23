@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class Bookshelf {
     private Integer shelf_id;
+    private String name;
     private Author author;
 }
