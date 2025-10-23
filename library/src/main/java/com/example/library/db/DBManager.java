@@ -6,7 +6,7 @@ import java.sql.*;
 public final class DBManager {
     private static final String ADMIN_URL = Dotenv.load().get("ADMIN_URL");
     private static final String DB_URL = Dotenv.load().get("DB_URL");
-    private static final String USER = Dotenv.load().get("DB_USER");
+    private static final String DB_USERNAME = Dotenv.load().get("DB_USERNAME");
     private static final String PASSWORD = Dotenv.load().get("DB_PASSWORD");
 
     public static void createDBIfNotExist() throws SQLException {
@@ -15,7 +15,7 @@ public final class DBManager {
         if (!isExist){
             System.out.println("Db 'library' doesn't exist.");
 
-            Connection connectionForAdminDB = DriverManager.getConnection(ADMIN_URL, USER, PASSWORD);
+            Connection connectionForAdminDB = DriverManager.getConnection(ADMIN_URL, DB_USERNAME, PASSWORD);
             Statement statement = connectionForAdminDB.createStatement();
             String query = "CREATE DATABASE library";
             statement.execute(query);
@@ -71,9 +71,8 @@ public final class DBManager {
         System.out.println("Schema was created!");
     }
 
-
     private static boolean databaseExists(String dbName) throws SQLException {
-        Connection adminConn = DriverManager.getConnection(ADMIN_URL, USER, PASSWORD);
+        Connection adminConn = DriverManager.getConnection(ADMIN_URL, DB_USERNAME, PASSWORD);
 
         PreparedStatement stmt = adminConn.prepareStatement("SELECT 1 FROM pg_database WHERE datname = ?");
         stmt.setString(1, dbName);
@@ -86,7 +85,7 @@ public final class DBManager {
     public static Connection getConnection() throws SQLException {
         Connection connection;
         try {
-            connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+            connection = DriverManager.getConnection(DB_URL, DB_USERNAME, PASSWORD);
         }catch (SQLException e){
             System.out.println("Connection Failed!");
             connection = null;
