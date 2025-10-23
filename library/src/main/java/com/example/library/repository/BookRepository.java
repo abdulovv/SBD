@@ -15,7 +15,6 @@ import java.sql.*;
 @Repository
 public class BookRepository {
 
-
     //КРЧ, НАДО СОСТАВИТЬ ЗАПРОС, КОТОРЫЙ ВОЗЬМЕТ ВСЕ ДАННЫЕ ЗА РАЗ, ЗАТЕМ ИХ ЗАПАРСИТЬ И ПОЛУЧИТЬ ОБЪЕКТ
     //ПОТОМУ ЧТО ДРУГИХ РЕПОЗИТОРЕВ НЕ ДОЛЖНО ТУТ БЫТЬ, НО Я СДЕЛАЛ, ЧТОБЫ СУТЬ БЫЛА ПОНЯТНО
     //РЕПОЗИТОРИИ АВТОРА, ЖАНРА ПО СУТИ СВОЕЙ ХАЛЯВА, ТК В НИХ НЕТУ ВНЕШНЕГО КЛЮЧА ИХ СРАЗУ МОЖНО ГАСИТЬ
@@ -43,8 +42,6 @@ public class BookRepository {
 
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
-
-                    // 1. Создание объекта Author (Автор КНИГИ)
                     Author bookAuthor = new Author(
                             rs.getInt("author_id_book"),
                             rs.getString("author_first_name"),
@@ -52,17 +49,13 @@ public class BookRepository {
                             rs.getString("author_country")
                     );
 
-                    // 2. Создание объекта Genre
                     Genre bookGenre = new Genre(
                             rs.getInt("genre_id"),
                             rs.getString("genre_name")
                     );
 
-                    // 3. Создание объекта Bookshelf (Сложно, т.к. может быть NULL)
                     Bookshelf bookBookshelf = null;
                     if (rs.getObject("bookshelf_id") != null) {
-
-                        // Создание объекта Author (Куратор ПОЛКИ), который может быть NULL
                         Author shelfAuthor = null;
                         if (rs.getObject("author_id_shelf") != null) {
                             shelfAuthor = new Author(
@@ -73,7 +66,6 @@ public class BookRepository {
                             );
                         }
 
-                        // Создание самой Полки
                         bookBookshelf = new Bookshelf(
                                 rs.getInt("bookshelf_id"),
                                 rs.getString("bookshelf_name"),
@@ -81,71 +73,51 @@ public class BookRepository {
                         );
                     }
 
-                    // 4. Создание объекта Book
                     Book book = new Book();
                     book.setBook_id(rs.getInt("book_id"));
                     book.setName(rs.getString("name"));
                     book.setYear(rs.getInt("year"));
 
-                    // Установка вложенных объектов
                     book.setAuthor(bookAuthor);
                     book.setGenre(bookGenre);
-                    book.setBookshelf(bookBookshelf); // Может быть NULL
+                    book.setBookshelf(bookBookshelf);
 
                     return book;
-
                 } else {
-                    return null; // Книга не найдена
+                    return null;
                 }
             }
         }
     }
 
-
-    /**
-     * Добавляет новую книгу в базу данных.
-     * * @param book Объект книги, который нужно добавить.
-     * @return Сгенерированный book_id, или -1 в случае ошибки.
-     * @throws SQLException Если произошла ошибка при работе с базой данных.
-     */
     public int addBook(Book book) throws SQLException {
         String INSERT_BOOK_SQL =
                 "INSERT INTO book (name, year, author_id, genre_id, bookshelf_id) " +
                         "VALUES (?, ?, ?, ?, ?);";
 
         int generatedBookId = -1;
-
-        // Использование try-with-resources для автоматического закрытия Connection и Statement
         try (Connection connection = DBManager.getConnection();
-             // Указываем RETURN_GENERATED_KEYS, чтобы получить book_id
              PreparedStatement statement = connection.prepareStatement(
                      INSERT_BOOK_SQL,
-                     Statement.RETURN_GENERATED_KEYS)) {
-
-            // 1. Установка параметров в PreparedStatement
+                     Statement.RETURN_GENERATED_KEYS))
+        {
             statement.setString(1, book.getName());
             statement.setInt(2, book.getYear());
 
-            // Получаем ID из вложенных объектов
             statement.setInt(3, book.getAuthor().getAuthor_id());
             statement.setInt(4, book.getGenre().getGenre_id());
 
-            // Bookshelf_id может быть NULL.
             if (book.getBookshelf() != null && book.getBookshelf().getShelf_id() != null) {
                 statement.setInt(5, book.getBookshelf().getShelf_id());
             } else {
                 statement.setNull(5, Types.INTEGER); // Устанавливаем NULL
             }
 
-            // 2. Выполнение запроса
             int affectedRows = statement.executeUpdate();
-
             if (affectedRows > 0) {
-                // 3. Получение сгенерированного book_id
                 try (ResultSet rs = statement.getGeneratedKeys()) {
                     if (rs.next()) {
                         generatedBookId = rs.getInt(1);
-                        // Обновляем ID в Java-объекте
                         book.setBook_id(generatedBookId);
                     }
                 }
@@ -154,56 +126,32 @@ public class BookRepository {
         return generatedBookId;
     }
 
-    /**
-     * Обновляет существующую запись книги в базе данных.
-     * * @param book Объект Book с новыми данными.
-     * @return true, если запись была успешно обновлена (затронута 1 строка), иначе false.
-     * @throws SQLException Если произошла ошибка при работе с базой данных.
-     */
     public boolean updateBook(Book book) throws SQLException {
         String UPDATE_BOOK_SQL =
                 "UPDATE book SET " +
                         "name = ?, year = ?, author_id = ?, genre_id = ?, bookshelf_id = ? " +
                         "WHERE book_id = ?;";
-        // Предполагаем, что DatabaseUtil.getConnection() предоставляет JDBC-соединение
         try (Connection connection = DBManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(UPDATE_BOOK_SQL)) {
-
-            // 1. Установка параметров для обновления (Set-часть запроса)
+             PreparedStatement statement = connection.prepareStatement(UPDATE_BOOK_SQL))
+        {
             statement.setString(1, book.getName());
             statement.setInt(2, book.getYear());
 
-            // Получаем ID из вложенных объектов
-            // Предполагаем, что Author и Genre всегда присутствуют и имеют ID.
             statement.setInt(3, book.getAuthor().getAuthor_id());
             statement.setInt(4, book.getGenre().getGenre_id());
 
-            // Bookshelf_id может быть NULL.
             if (book.getBookshelf() != null && book.getBookshelf().getShelf_id() != null) {
                 statement.setInt(5, book.getBookshelf().getShelf_id());
             } else {
                 statement.setNull(5, Types.INTEGER); // Устанавливаем NULL, если полка отсутствует
             }
 
-            // 2. Установка параметра WHERE (ID книги для изменения)
             statement.setInt(6, book.getBook_id());
-
-            // 3. Выполнение запроса
             int affectedRows = statement.executeUpdate();
-
-            // 4. Возврат результата
             return affectedRows > 0;
-
-        } // try-with-resources закрывает ресурсы
+        }
     }
 
-    /**
-     * Удаляет книгу из базы данных по ее ID, взятому из объекта Book.
-     * * @param book Объект Book, содержащий ID удаляемой книги.
-     * @return true, если запись была успешно удалена (затронута 1 строка), иначе false.
-     * @throws SQLException Если произошла ошибка при работе с базой данных
-     * (например, ошибка внешнего ключа, если книга находится в Loan).
-     */
     public boolean deleteBook(Book book) throws SQLException {
         String DELETE_BOOK_SQL =
                 "DELETE FROM book " +
@@ -215,17 +163,11 @@ public class BookRepository {
         }
 
         try (Connection connection = DBManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(DELETE_BOOK_SQL)) {
-
-            // 1. Установка параметра WHERE (ID книги для удаления)
+             PreparedStatement statement = connection.prepareStatement(DELETE_BOOK_SQL))
+        {
             statement.setInt(1, book.getBook_id());
-
-            // 2. Выполнение запроса
             int affectedRows = statement.executeUpdate();
-
-            // 3. Возврат результата
             return affectedRows > 0;
-
         }
     }
 
