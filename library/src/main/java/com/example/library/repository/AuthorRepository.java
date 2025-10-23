@@ -24,10 +24,12 @@ public class AuthorRepository {
 
         if (resultSet.next()) {
             Author author = new Author();
-            author.setAuthor_id(resultSet.getInt("author_id"));
-            author.setFirst_name(resultSet.getString("first_name"));
-            author.setLast_name(resultSet.getString("last_name"));
-            author.setCountry(resultSet.getString("country"));
+            Integer author_id = resultSet.getInt("author_id");
+            String first_name = resultSet.getString("first_name");
+            String last_name = resultSet.getString("last_name");
+            String country = resultSet.getString("country");
+
+            if (author_id != null) {}
             return author;
         }
         return null;

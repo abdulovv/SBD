@@ -25,11 +25,12 @@ public class BookshelfRepository {
 
         if (resultSet.next()) {
             Bookshelf bookshelf = new Bookshelf();
+            bookshelf.setName(resultSet.getString("name"));
             bookshelf.setShelf_id(resultSet.getInt("shelf_id"));
 
             Author author = new Author();
-            author.setAuthor_id(resultSet.getInt("author_id"));
-            bookshelf.setAuthor(author);
+
+
             return bookshelf;
         }
         return null;

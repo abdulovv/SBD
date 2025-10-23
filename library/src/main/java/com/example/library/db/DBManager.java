@@ -29,7 +29,6 @@ public final class DBManager {
         closeConnection();
     }
 
-    //САША СДЕЛАЙ ЭТО
     private static void createSchema(Connection connection) throws SQLException {
         String createUsersTable =
                 "CREATE TABLE IF NOT EXISTS users (" +
