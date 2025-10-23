@@ -12,6 +12,10 @@ public class Genre {
         this.genre_name = genre_name;
     }
 
+    public Genre(String genre_name) {
+        this.genre_name = genre_name;
+    }
+
     public Genre() {
     }
 }

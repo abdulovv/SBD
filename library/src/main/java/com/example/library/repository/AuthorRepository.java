@@ -68,6 +68,7 @@ public class AuthorRepository {
         }
     }
 
+    //make deletion with Author author
     public void deleteAuthor(int id) throws SQLException {
         try (Connection connection = DBManager.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM author WHERE author_id = ?");
