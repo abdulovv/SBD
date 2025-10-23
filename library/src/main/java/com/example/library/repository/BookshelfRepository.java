@@ -49,7 +49,7 @@ public class BookshelfRepository {
         return null;
     }
 
-    public int createBookshelf(Bookshelf bookshelf) throws SQLException {
+    public int addBookshelf(Bookshelf bookshelf) throws SQLException {
         int generatedId = -1;
         String sql = "INSERT INTO bookshelf (name, author_id) VALUES (?, ?)";
 
