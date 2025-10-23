@@ -53,14 +53,14 @@ public class AuthorRepository {
         }
     }
 
-    public void updateAuthor(Author author, int id) throws SQLException {
+    public void updateAuthor(Author author) throws SQLException {
         try (Connection connection = DBManager.getConnection();
              PreparedStatement pstmt = connection.prepareStatement("UPDATE author SET first_name = ?, last_name = ?, country = ? WHERE author_id = ?")
         ){
             pstmt.setString(1, author.getFirst_name());
             pstmt.setString(2, author.getLast_name());
             pstmt.setString(3, author.getCountry());
-            pstmt.setInt(4, id);
+            pstmt.setInt(4, author.getAuthor_id());
 
             pstmt.executeUpdate();
         } finally {
