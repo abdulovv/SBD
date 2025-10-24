@@ -1,20 +1,15 @@
 package com.example.library;
 
 import com.example.library.db.DBManager;
-import com.example.library.db.entities.Action;
-import com.example.library.db.entities.Author;
-import com.example.library.db.entities.Country;
-import com.example.library.db.entities.Genre;
-import com.example.library.repository.ActionRepository;
-import com.example.library.repository.AuthorRepository;
-import com.example.library.repository.CountryRepository;
-import com.example.library.repository.GenreRepository;
+import com.example.library.db.entities.*;
+import com.example.library.repository.*;
 
 import java.sql.SQLException;
 
 public class TESTCLASS {
     public static void main(String[] args) throws SQLException {
         DBManager.createDBIfNotExist();
+
 
     }
 }

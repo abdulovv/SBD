@@ -59,19 +59,21 @@ public final class DBManager {
                 "FOREIGN KEY (country_id) REFERENCES Countries (country_id))";
 
         String createUsersTable =
-                "CREATE TABLE IF NOT EXISTS Users " +
-                "(user_id SERIAL PRIMARY KEY, " +
-                "data_id INT UNIQUE, " +
+                "CREATE TABLE IF NOT EXISTS Users (" +
+                "user_id SERIAL PRIMARY KEY, " +
+                "data_id INT UNIQUE NOT NULL, " +
                 "login VARCHAR(255) NOT NULL UNIQUE, " +
-                "password VARCHAR(255) NOT NULL, i" +
-                "sAdmin BOOLEAN NOT NULL DEFAULT FALSE)";
+                "password VARCHAR(255) NOT NULL, " +
+                "isAdmin BOOLEAN NOT NULL DEFAULT FALSE, " +
+                "FOREIGN KEY (data_id) REFERENCES PersonalData (data_id))";
 
         String createPersonalDataTable =
-                "CREATE TABLE IF NOT EXISTS PersonalData " +
-                "(data_id SERIAL PRIMARY KEY, " +
+                "CREATE TABLE IF NOT EXISTS PersonalData (" +
+                "data_id SERIAL PRIMARY KEY, " +
                 "first_name VARCHAR(255) NOT NULL, " +
-                "last_name VARCHAR(255) NOT NULL, number VARCHAR(255) NOT NULL UNIQUE, " +
-                "FOREIGN KEY (data_id) REFERENCES Users (data_id))";
+                "last_name VARCHAR(255) NOT NULL, " +
+                "number VARCHAR(255) NOT NULL UNIQUE" +
+                ")";
 
         String createBooksTable =
                 "CREATE TABLE IF NOT EXISTS Books " +
@@ -109,8 +111,8 @@ public final class DBManager {
             statement.execute(createGenresTable);
             statement.execute(createBookshelfsTable);
             statement.execute(createActionsTable);
-            statement.execute(createUsersTable);
             statement.execute(createPersonalDataTable);
+            statement.execute(createUsersTable);
             statement.execute(createAuthorsTable);
             statement.execute(createBooksTable);
             statement.execute(createLogsTable);
