@@ -19,7 +19,7 @@ public class ActionRepository {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     Integer action_id = resultSet.getInt("action_id");
-                    String action_name = resultSet.getString("action_name");
+                    String action_name = resultSet.getString("description");
                     if (action_id != null && action_id != null) {
                         action = new Action();
                         action.setAction_id(action_id);
@@ -37,7 +37,7 @@ public class ActionRepository {
 
     public void addAction(Action action) throws SQLException {
         try (Connection connection = DBManager.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO actions VALUES (?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Actions (description) VALUES (?)");
             preparedStatement.setString(1, action.getDescription());
             try{
                 preparedStatement.executeUpdate();
@@ -51,7 +51,7 @@ public class ActionRepository {
 
     public void updateAction(Action action) throws SQLException {
         try (Connection connection = DBManager.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE actions SET action_name = ? WHERE action_id = ?");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE actions SET description = ? WHERE action_id = ?");
             preparedStatement.setString(1, action.getDescription());
             preparedStatement.setInt(2, action.getAction_id());
             try{

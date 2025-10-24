@@ -1,7 +1,6 @@
 package com.example.library.repository;
 
 import com.example.library.db.DBManager;
-import com.example.library.db.entities.Author;
 import com.example.library.db.entities.Genre;
 import org.springframework.stereotype.Repository;
 
