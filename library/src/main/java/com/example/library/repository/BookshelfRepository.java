@@ -65,8 +65,27 @@ public class BookshelfRepository {
     }
 
     public void deleteBookshelf(Bookshelf bookshelf) throws SQLException {
+        try {
+            deleteBooksOnBookshelf(bookshelf);
+            try(Connection connection = DBManager.getConnection()){
+                PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM bookshelfs WHERE bookshelf_id = ?");
+                preparedStatement.setInt(1, bookshelf.getBookshelf_id());
+                try {
+                    preparedStatement.executeUpdate();
+                }catch (SQLException e){
+                    System.out.println("SQLException: " + e.getMessage());
+                }
+            }finally {
+                DBManager.closeConnection();
+            }
+        }catch (SQLException e){
+            System.out.println("SQLException: " + e.getMessage());
+        }
+    }
+
+    private void deleteBooksOnBookshelf(Bookshelf bookshelf) throws SQLException {
         try(Connection connection = DBManager.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM bookshelfs WHERE bookshelf_id = ?");
+            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM books WHERE bookshelf_id = ?");
             preparedStatement.setInt(1, bookshelf.getBookshelf_id());
             try {
                 preparedStatement.executeUpdate();
