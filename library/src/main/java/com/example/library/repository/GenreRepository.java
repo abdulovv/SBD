@@ -15,7 +15,7 @@ public class GenreRepository {
     public Genre findGenreById(int id) throws SQLException {
         Genre genre = null;
         try (Connection connection = DBManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT genre_id, genre_name FROM genre WHERE genre_id = ?")) {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT genre_id, genre_name FROM genres WHERE genre_id = ?")) {
             preparedStatement.setInt(1, id);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -29,6 +29,8 @@ public class GenreRepository {
                         genre.setGenre_name(genre_name);
                     }
                 }
+            }catch (SQLException e){
+                System.out.println("SQLException: " + e.getMessage());
             }
         }finally {
             DBManager.closeConnection();
@@ -38,21 +40,28 @@ public class GenreRepository {
 
     public void addGenre(Genre genre) throws SQLException {
         try (Connection connection = DBManager.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO genre (genre_name) VALUES (?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO genres (genre_name) VALUES (?)");
             preparedStatement.setString(1,genre.getGenre_name());
-            preparedStatement.executeUpdate();
+            try {
+                preparedStatement.executeUpdate();
+            }catch (SQLException e){
+                System.out.println("SQLException: " + e.getMessage());
+            }
         }finally {
             DBManager.closeConnection();
         }
     }
 
     public void updateGenre(Genre genre) throws SQLException {
-        try (Connection connection = DBManager.getConnection();
-             PreparedStatement pstmt = connection.prepareStatement("UPDATE genre SET genre_name = ? WHERE genre_id = ?")
-        ){
-            pstmt.setString(1, genre.getGenre_name());
-            pstmt.setInt(2, genre.getGenre_id());
-            pstmt.executeUpdate();
+        try (Connection connection = DBManager.getConnection()){
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE genres SET genre_name = ? WHERE genre_id = ?");
+            preparedStatement.setString(1, genre.getGenre_name());
+            preparedStatement.setInt(2, genre.getGenre_id());
+            try{
+                preparedStatement.executeUpdate();
+            }catch (SQLException e){
+                System.out.println("SQLException: " + e.getMessage());
+            }
         } finally {
             DBManager.closeConnection();
         }
@@ -60,9 +69,13 @@ public class GenreRepository {
 
     public void deleteGenre(Genre genre) throws SQLException {
         try (Connection connection = DBManager.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM genre WHERE genre_id = ?");
+            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM genres WHERE genre_id = ?");
             preparedStatement.setInt(1, genre.getGenre_id());
-            preparedStatement.executeUpdate();
+            try{
+                preparedStatement.executeUpdate();
+            }catch (SQLException e){
+                System.out.println("SQLException: " + e.getMessage());
+            }
         }finally {
             DBManager.closeConnection();
         }
