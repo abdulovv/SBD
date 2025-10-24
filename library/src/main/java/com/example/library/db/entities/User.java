@@ -5,10 +5,8 @@ import lombok.Data;
 @Data
 public class User {
     private Integer user_id;
+    private PersonalData personalData;
     private String login;
     private String password;
-    private String first_name;
-    private String phone;
-    private String last_name;
     private Boolean isAdmin;
 }
